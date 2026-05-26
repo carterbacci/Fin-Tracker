@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinTracker</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+:root{
+  --bg:#0f1117;
+  --card:#1a2130;
+  --card-light:#232c3d;
+  --border:rgba(255,255,255,.08);
+
+  --text:#f3f6fc;
+  --muted:#95a1b5;
+
+  --blue:#4f8cff;
+  --green:#29c48a;
+  --red:#ff5f74;
+  --orange:#ffb648;
+  --purple:#8b7cff;
+
+  --radius:24px;
+}
+
+body{
+  font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;
+  background:
+    radial-gradient(circle at top left,#1b2b52 0%,transparent 28%),
+    radial-gradient(circle at bottom right,#183728 0%,transparent 24%),
+    var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+
+header{
+  padding:28px 36px;
+  border-bottom:1px solid var(--border);
+  background:rgba(15,17,23,.75);
+  backdrop-filter:blur(10px);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.topbar{
+  max-width:1450px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.logo-icon{
+  width:50px;
+  height:50px;
+  border-radius:16px;
+  background:linear-gradient(135deg,var(--blue),#7ab4ff);
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  font-size:24px;
+}
+
+.logo h1{
+  font-size:24px;
+  letter-spacing:-0.04em;
+}
+
+.logo p{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:3px;
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  border-bottom:1px solid var(--border);
+}
+
+.tab{
+  padding:12px 24px;
+  background:none;
+  border:none;
+  color:var(--muted);
+  font-weight:600;
+  cursor:pointer;
+  border-bottom:3px solid transparent;
+  margin-bottom:-1px;
+  transition:.2s;
+  font-size:14px;
+}
+
+.tab:hover{
+  color:var(--text);
+}
+
+.tab.active{
+  color:var(--blue);
+  border-bottom-color:var(--blue);
+}
+
+.tab-panel{
+  display:none;
+}
+
+.tab-panel.active{
+  display:block;
+}
+
+.container{
+  max-width:1450px;
+  margin:auto;
+  padding:34px;
+}
+
+.hero{
+  background:linear-gradient(135deg,#1f2940,#171d29);
+  border:1px solid var(--border);
+  border-radius:32px;
+  padding:38px;
+  margin-bottom:28px;
+}
+
+.hero-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:30px;
+  flex-wrap:wrap;
+}
+
+.hero h2{
+  color:var(--muted);
+  font-weight:500;
+  margin-bottom:10px;
+}
+
+.net-worth{
+  font-size:72px;
+  font-weight:800;
+  letter-spacing:-0.06em;
+  color:var(--green);
+  margin-bottom:22px;
+}
+
+.summary{
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.summary-card{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.05);
+
+  padding:18px 22px;
+  border-radius:20px;
+  min-width:170px;
+}
+
+.summary-card span{
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+.summary-card strong{
+  font-size:24px;
+}
+
+.chart-card{
+  width:320px;
+  background:rgba(255,255,255,.04);
+  border-radius:24px;
+  padding:20px;
+}
+
+.chart-wrap{
+  height:260px;
+}
+
+.section{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:30px;
+  padding:30px;
+  margin-bottom:28px;
+}
+
+.section-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:24px;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+.section-header h3{
+  font-size:24px;
+  letter-spacing:-0.03em;
+}
+
+.section-header p{
+  color:var(--muted);
+  font-size:14px;
+  margin-top:4px;
+}
+
+.btn{
+  border:none;
+  background:linear-gradient(135deg,var(--blue),#79b2ff);
+  color:white;
+  padding:14px 20px;
+  border-radius:16px;
+  font-weight:700;
+  cursor:pointer;
+  font-size:14px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+
+.btn:hover{
+  transform:translateY(-1px);
+}
+
+.accounts{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.account{
+  background:var(--card-light);
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:22px;
+
+  padding:24px 26px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+
+  transition:.2s;
+}
+
+.account:hover{
+  transform:translateY(-2px);
+  border-color:rgba(255,255,255,.15);
+  box-shadow:0 8px 24px rgba(0,0,0,.3);
+}
+
+.acc-left{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+
+.acc-icon{
+  width:62px;
+  height:62px;
+  border-radius:18px;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  font-size:26px;
+  flex-shrink:0;
+}
+
+.acc-name{
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:5px;
+}
+
+.acc-type{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.acc-right{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.acc-bal{
+  font-size:30px;
+  font-weight:800;
+  min-width:140px;
+  text-align:right;
+}
+
+.pos{
+  color:var(--green);
+}
+
+.neg{
+  color:var(--red);
+}
+
+.edit-btn{
+  background:rgba(255,255,255,.07);
+  border:none;
+  color:white;
+
+  width:46px;
+  height:46px;
+
+  border-radius:14px;
+  cursor:pointer;
+
+  font-size:18px;
+  transition:.2s;
+}
+
+.edit-btn:hover{
+  background:rgba(255,255,255,.12);
+}
+
+.insight-card{
+  background:var(--card-light);
+  border-left:4px solid;
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:14px;
+}
+
+.insight-card.success{border-left-color:var(--green);background:rgba(41,196,138,.08);}
+.insight-card.warning{border-left-color:var(--orange);background:rgba(255,182,72,.08);}
+.insight-card.danger{border-left-color:var(--red);background:rgba(255,95,116,.08);}
+
+.insight-badge{
+  display:inline-block;
+  font-size:11px;
+  font-weight:700;
+  padding:4px 10px;
+  border-radius:8px;
+  margin-bottom:8px;
+  text-transform:uppercase;
+}
+
+.insight-card.success .insight-badge{background:var(--green);color:#000;}
+.insight-card.warning .insight-badge{background:var(--orange);color:#000;}
+.insight-card.danger .insight-badge{background:var(--red);color:#fff;}
+
+.insight-title{
+  font-size:16px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.insight-text{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.6;
+}
+
+.budget-item{
+  background:var(--card-light);
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:20px;
+  padding:22px;
+  margin-bottom:14px;
+}
+
+.budget-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.budget-name{
+  font-size:18px;
+  font-weight:700;
+}
+
+.budget-amounts{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.budget-amounts.over{
+  color:var(--red);
+}
+
+.progress-bar{
+  height:10px;
+  background:rgba(255,255,255,.05);
+  border-radius:99px;
+  overflow:hidden;
+  margin-bottom:10px;
+}
+
+.progress-fill{
+  height:100%;
+  border-radius:99px;
+  transition:width .3s;
+}
+
+.progress-fill.success{background:var(--green);}
+.progress-fill.warning{background:var(--orange);}
+.progress-fill.danger{background:var(--red);}
+
+.budget-status{
+  font-size:13px;
+  color:var(--muted);
+}
+
+.goal-card{
+  background:var(--card-light);
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:22px;
+  padding:26px;
+  margin-bottom:16px;
+}
+
+.goal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  margin-bottom:16px;
+  gap:16px;
+}
+
+.goal-icon{
+  width:52px;
+  height:52px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  flex-shrink:0;
+}
+
+.goal-info{
+  flex:1;
+}
+
+.goal-name{
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.goal-target{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.goal-progress{
+  margin-bottom:16px;
+}
+
+.goal-amount{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+
+.goal-current{
+  font-size:28px;
+  font-weight:800;
+  color:var(--green);
+}
+
+.goal-pct{
+  font-size:18px;
+  font-weight:700;
+  color:var(--muted);
+}
+
+.goal-projections{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:14px;
+}
+
+.projection{
+  background:rgba(255,255,255,.04);
+  border-radius:14px;
+  padding:14px;
+}
+
+.projection-label{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+
+.projection-value{
+  font-size:16px;
+  font-weight:700;
+  color:var(--blue);
+}
+
+.sim-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:24px;
+}
+
+.sim-card{
+  background:var(--card-light);
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:22px;
+  padding:26px;
+}
+
+.sim-title{
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.sim-title i{
+  color:var(--blue);
+}
+
+.slider-group{
+  margin-bottom:18px;
+}
+
+.slider-label{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:10px;
+  font-size:14px;
+  color:var(--muted);
+}
+
+.slider-value{
+  color:var(--text);
+  font-weight:700;
+}
+
+input[type=range]{
+  width:100%;
+  height:8px;
+  background:rgba(255,255,255,.08);
+  border-radius:99px;
+  outline:none;
+  -webkit-appearance:none;
+}
+
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:20px;
+  height:20px;
+  background:var(--blue);
+  border-radius:50%;
+  cursor:pointer;
+}
+
+input[type=range]::-moz-range-thumb{
+  width:20px;
+  height:20px;
+  background:var(--blue);
+  border-radius:50%;
+  cursor:pointer;
+  border:none;
+}
+
+.result-box{
+  background:rgba(255,255,255,.04);
+  border-radius:16px;
+  padding:16px;
+  margin-top:14px;
+}
+
+.result-row{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+.result-row:last-child{
+  border-bottom:none;
+  font-weight:700;
+}
+
+.result-label{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.result-value{
+  font-weight:700;
+  font-size:15px;
+}
+
+.result-value.success{color:var(--green);}
+.result-value.danger{color:var(--red);}
+
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+
+  display:none;
+  justify-content:center;
+  align-items:center;
+
+  z-index:300;
+}
+
+.modal-overlay.open{
+  display:flex;
+}
+
+.modal{
+  width:420px;
+  max-width:95vw;
+
+  background:#182030;
+  border-radius:28px;
+  padding:30px;
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.modal h3{
+  margin-bottom:22px;
+  font-size:24px;
+}
+
+.field{
+  margin-bottom:18px;
+}
+
+.field label{
+  display:block;
+  margin-bottom:8px;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.field input,
+.field select{
+  width:100%;
+  background:#111722;
+  border:1px solid rgba(255,255,255,.08);
+  color:white;
+
+  padding:14px;
+  border-radius:14px;
+  font-size:15px;
+}
+
+.modal-actions{
+  display:flex;
+  gap:12px;
+  margin-top:26px;
+}
+
+.secondary{
+  background:#2b3548;
+}
+
+.grid-2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+}
+
+@media(max-width:950px){
+
+  .hero-top{
+    flex-direction:column;
+  }
+
+  .chart-card{
+    width:100%;
+  }
+
+  .account{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .acc-right{
+    width:100%;
+    justify-content:space-between;
+  }
+
+  .acc-bal{
+    text-align:left;
+  }
+
+  .net-worth{
+    font-size:52px;
+  }
+
+  .grid-2{
+    grid-template-columns:1fr;
+  }
+
+  .goal-projections{
+    grid-template-columns:1fr;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="topbar">
+
+    <div class="logo">
+      <div class="logo-icon">
+        <i class="ti ti-chart-donut-3"></i>
+      </div>
+
+      <div>
+        <h1>FinTracker</h1>
+        <p>Track your financial life in one place</p>
+      </div>
+    </div>
+
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('overview')">
+      <i class="ti ti-layout-dashboard"></i> Overview
+    </button>
+    <button class="tab" onclick="switchTab('accounts')">
+      <i class="ti ti-wallet"></i> Accounts
+    </button>
+    <button class="tab" onclick="switchTab('budget')">
+      <i class="ti ti-receipt"></i> Budget
+    </button>
+    <button class="tab" onclick="switchTab('goals')">
+      <i class="ti ti-target"></i> Goals
+    </button>
+    <button class="tab" onclick="switchTab('whatif')">
+      <i class="ti ti-calculator"></i> Scenarios
+    </button>
+  </div>
+
+  <!-- OVERVIEW TAB -->
+  <div id="tab-overview" class="tab-panel active">
+
+    <section class="hero">
+
+      <div class="hero-top">
+
+        <div>
+
+          <h2>Total Net Worth</h2>
+
+          <div class="net-worth" id="netWorth">
+            $0
+          </div>
+
+          <div class="summary">
+
+            <div class="summary-card">
+              <span>Total Assets</span>
+              <strong id="assetsTotal">$0</strong>
+            </div>
+
+            <div class="summary-card">
+              <span>Total Debt</span>
+              <strong id="debtTotal">$0</strong>
+            </div>
+
+            <div class="summary-card">
+              <span>Total Accounts</span>
+              <strong id="accCount">0</strong>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-wrap">
+            <canvas id="chart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h3><i class="ti ti-bulb"></i> Smart Insights</h3>
+          <p>AI-powered financial recommendations</p>
+        </div>
+      </div>
+      <div id="insightsContainer"></div>
+    </section>
+
+  </div>
+
+  <!-- ACCOUNTS TAB -->
+  <div id="tab-accounts" class="tab-panel">
+
+    <section class="section">
+
+      <div class="section-header">
+
+        <div>
+          <h3>Your Accounts</h3>
+          <p>View and manage all your accounts</p>
+        </div>
+
+        <button class="btn" onclick="openAddModal()">
+          <i class="ti ti-plus"></i>
+          Add Account
+        </button>
+
+      </div>
+
+      <div class="accounts" id="accountsContainer"></div>
+
+    </section>
+
+  </div>
+
+  <!-- BUDGET TAB -->
+  <div id="tab-budget" class="tab-panel">
+
+    <div class="summary" style="margin-bottom:28px">
+      <div class="summary-card">
+        <span>Monthly Budget</span>
+        <strong id="budgetTotal">$0</strong>
+      </div>
+      <div class="summary-card">
+        <span>Spent</span>
+        <strong id="spentTotal">$0</strong>
+      </div>
+      <div class="summary-card">
+        <span>Remaining</span>
+        <strong id="remainingTotal">$0</strong>
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h3>Budget Categories</h3>
+          <p>Track your monthly spending</p>
+        </div>
+        <button class="btn" onclick="openBudgetModal()">
+          <i class="ti ti-plus"></i>
+          Add Category
+        </button>
+      </div>
+      <div id="budgetContainer"></div>
+    </section>
+
+  </div>
+
+  <!-- GOALS TAB -->
+  <div id="tab-goals" class="tab-panel">
+
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h3>Financial Goals</h3>
+          <p>Set and track your savings goals</p>
+        </div>
+        <button class="btn" onclick="openGoalModal()">
+          <i class="ti ti-plus"></i>
+          Add Goal
+        </button>
+      </div>
+      <div id="goalsContainer"></div>
+    </section>
+
+  </div>
+
+  <!-- WHAT-IF TAB -->
+  <div id="tab-whatif" class="tab-panel">
+
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h3>Financial Scenarios</h3>
+          <p>Model different financial decisions</p>
+        </div>
+      </div>
+
+      <div class="sim-grid">
+
+        <div class="sim-card">
+          <div class="sim-title">
+            <i class="ti ti-credit-card"></i>
+            Pay Off Debt
+          </div>
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Percentage to pay off</span>
+              <span class="slider-value" id="debtPct">100%</span>
+            </div>
+            <input type="range" min="0" max="100" value="100" id="slDebt" oninput="updateSims()">
+          </div>
+          <div class="result-box" id="debtResult"></div>
+        </div>
+
+        <div class="sim-card">
+          <div class="sim-title">
+            <i class="ti ti-trending-up"></i>
+            Investment Growth
+          </div>
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Monthly contribution</span>
+              <span class="slider-value" id="invAmt">$500</span>
+            </div>
+            <input type="range" min="0" max="2000" step="50" value="500" id="slInv" oninput="updateSims()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Annual return</span>
+              <span class="slider-value" id="invRate">7%</span>
+            </div>
+            <input type="range" min="1" max="15" step="1" value="7" id="slRate" oninput="updateSims()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Years</span>
+              <span class="slider-value" id="invYrs">10</span>
+            </div>
+            <input type="range" min="1" max="40" step="1" value="10" id="slYrs" oninput="updateSims()">
+          </div>
+          <div class="result-box" id="invResult"></div>
+        </div>
+
+        <div class="sim-card">
+          <div class="sim-title">
+            <i class="ti ti-home"></i>
+            Emergency Fund
+          </div>
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Monthly expenses</span>
+              <span class="slider-value" id="efExp">$3,000</span>
+            </div>
+            <input type="range" min="500" max="10000" step="100" value="3000" id="slExp" oninput="updateSims()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Target months</span>
+              <span class="slider-value" id="efMos">6</span>
+            </div>
+            <input type="range" min="1" max="12" step="1" value="6" id="slMos" oninput="updateSims()">
+          </div>
+          <div class="result-box" id="efResult"></div>
+        </div>
+
+        <div class="sim-card">
+          <div class="sim-title">
+            <i class="ti ti-receipt-2"></i>
+            Retirement at 65
+          </div>
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Current age</span>
+              <span class="slider-value" id="retAge">30</span>
+            </div>
+            <input type="range" min="18" max="64" step="1" value="30" id="slAge" oninput="updateSims()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Monthly contribution</span>
+              <span class="slider-value" id="retContrib">$500</span>
+            </div>
+            <input type="range" min="0" max="3000" step="50" value="500" id="slRetC" oninput="updateSims()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Expected return</span>
+              <span class="slider-value" id="retRate">7%</span>
+            </div>
+            <input type="range" min="1" max="12" step="1" value="7" id="slRetR" oninput="updateSims()">
+          </div>
+          <div class="result-box" id="retResult"></div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>
+
+<!-- ACCOUNT MODAL -->
+<div class="modal-overlay" id="accModal">
+  <div class="modal">
+    <h3 id="accModalTitle">Add Account</h3>
+    <div class="field">
+      <label>Account Name</label>
+      <input id="nameInput" placeholder="Ex: Chase Checking">
+    </div>
+    <div class="field">
+      <label>Account Type</label>
+      <select id="typeInput">
+        <option value="cash">Cash / Checking</option>
+        <option value="savings">Savings / HYSA</option>
+        <option value="retirement">Retirement</option>
+        <option value="investment">Investment</option>
+        <option value="crypto">Crypto</option>
+        <option value="debt">Debt</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Balance</label>
+      <input id="balanceInput" type="number" placeholder="1000">
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeAccModal()">
+        Cancel
+      </button>
+      <button class="btn" onclick="saveAccount()">
+        Save Account
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- BUDGET MODAL -->
+<div class="modal-overlay" id="budModal">
+  <div class="modal">
+    <h3 id="budModalTitle">Add Budget Category</h3>
+    <div class="field">
+      <label>Category Name</label>
+      <input id="budNameInput" placeholder="Ex: Groceries">
+    </div>
+    <div class="field">
+      <label>Monthly Budget</label>
+      <input id="budAmountInput" type="number" placeholder="500">
+    </div>
+    <div class="field">
+      <label>Spent This Month</label>
+      <input id="budSpentInput" type="number" placeholder="0">
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeBudModal()">
+        Cancel
+      </button>
+      <button class="btn" onclick="saveBudget()">
+        Save Category
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- GOAL MODAL -->
+<div class="modal-overlay" id="goalModal">
+  <div class="modal">
+    <h3 id="goalModalTitle">Add Goal</h3>
+    <div class="field">
+      <label>Goal Name</label>
+      <input id="goalNameInput" placeholder="Ex: New Car">
+    </div>
+    <div class="field">
+      <label>Target Amount</label>
+      <input id="goalTargetInput" type="number" placeholder="10000">
+    </div>
+    <div class="field">
+      <label>Current Savings</label>
+      <input id="goalCurrentInput" type="number" placeholder="0">
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeGoalModal()">
+        Cancel
+      </button>
+      <button class="btn" onclick="saveGoal()">
+        Save Goal
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+let accounts = JSON.parse(localStorage.getItem('ft_accounts')) || [
+  {id:1, name:'Wells Fargo Checking', type:'cash', balance:1000},
+  {id:2, name:'Marcus HYSA', type:'savings', balance:11400},
+  {id:3, name:'Roth IRA', type:'retirement', balance:42777},
+  {id:4, name:'Crypto Portfolio', type:'crypto', balance:325},
+  {id:5, name:'Discover Card', type:'debt', balance:-300}
+];
+
+let budgets = JSON.parse(localStorage.getItem('ft_budgets')) || [
+  {id:1, name:'Rent', budget:1500, spent:1500},
+  {id:2, name:'Groceries', budget:400, spent:280},
+  {id:3, name:'Dining Out', budget:200, spent:175}
+];
+
+let goals = JSON.parse(localStorage.getItem('ft_goals')) || [
+  {id:1, name:'New Car', target:10000, current:3000},
+  {id:2, name:'Emergency Fund', target:15000, current:7500}
+];
+
+let editAccId = null;
+let editBudId = null;
+let editGoalId = null;
+
+const typeMeta = {
+  cash:{
+    icon:'ti-building-bank',
+    color:'#4f8cff',
+    bg:'rgba(79,140,255,.15)',
+    label:'Cash Account'
+  },
+  savings:{
+    icon:'ti-coin',
+    color:'#29c48a',
+    bg:'rgba(41,196,138,.15)',
+    label:'High-Yield Savings'
+  },
+  retirement:{
+    icon:'ti-chart-line',
+    color:'#8b7cff',
+    bg:'rgba(139,124,255,.15)',
+    label:'Retirement'
+  },
+  investment:{
+    icon:'ti-trending-up',
+    color:'#4f8cff',
+    bg:'rgba(79,140,255,.15)',
+    label:'Investment'
+  },
+  crypto:{
+    icon:'ti-currency-bitcoin',
+    color:'#ffb648',
+    bg:'rgba(255,182,72,.15)',
+    label:'Crypto'
+  },
+  debt:{
+    icon:'ti-credit-card',
+    color:'#ff5f74',
+    bg:'rgba(255,95,116,.15)',
+    label:'Debt'
+  }
+};
+
+function formatMoney(num){
+  return (num < 0 ? '-$' : '$') +
+  Math.abs(num).toLocaleString();
+}
+
+function saveData(){
+  localStorage.setItem('ft_accounts', JSON.stringify(accounts));
+  localStorage.setItem('ft_budgets', JSON.stringify(budgets));
+  localStorage.setItem('ft_goals', JSON.stringify(goals));
+}
+
+function calcSummary(){
+  const assets = accounts.filter(a=>a.balance>0).reduce((s,a)=>s+a.balance,0);
+  const debts = accounts.filter(a=>a.balance<0).reduce((s,a)=>s+Math.abs(a.balance),0);
+  return {assets, debts, netWorth: assets-debts};
+}
+
+function renderAccounts(){
+
+  const container = document.getElementById('accountsContainer');
+  container.innerHTML = '';
+
+  accounts.forEach(acc => {
+
+    const meta = typeMeta[acc.type];
+
+    const row = document.createElement('div');
+    row.className = 'account';
+    row.innerHTML = `
+      <div class="acc-left">
+        <div class="acc-icon"
+          style="
+            background:${meta.bg};
+            color:${meta.color};
+          ">
+          <i class="ti ${meta.icon}"></i>
+        </div>
+        <div>
+          <div class="acc-name">
+            ${acc.name}
+          </div>
+          <div class="acc-type">
+            ${meta.label}
+          </div>
+        </div>
+      </div>
+      <div class="acc-right">
+        <div class="acc-bal ${acc.balance>=0?'pos':'neg'}">
+          ${formatMoney(acc.balance)}
+        </div>
+        <button class="edit-btn" onclick="editAccount(${acc.id})">
+          <i class="ti ti-edit"></i>
+        </button>
+        <button class="edit-btn" onclick="deleteAccount(${acc.id})">
+          <i class="ti ti-trash"></i>
+        </button>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+
+  updateSummary();
+  renderChart();
+}
+
+function updateSummary(){
+
+  const {assets, debts, netWorth} = calcSummary();
+
+  document.getElementById('netWorth').innerText = formatMoney(netWorth);
+  document.getElementById('assetsTotal').innerText = formatMoney(assets);
+  document.getElementById('debtTotal').innerText = formatMoney(debts);
+  document.getElementById('accCount').innerText = accounts.length;
+}
+
+let chart;
+
+function renderChart(){
+
+  const totals = {};
+
+  accounts.forEach(acc => {
+    if(acc.balance > 0){
+      totals[acc.type] = (totals[acc.type] || 0) + acc.balance;
+    }
+  });
+
+  const labels = Object.keys(totals);
+  const data = Object.values(totals);
+
+  const colors = labels.map(l => typeMeta[l].color);
+
+  if(chart){
+    chart.destroy();
+  }
+
+  chart = new Chart(
+    document.getElementById('chart'),
+    {
+      type:'doughnut',
+      data:{
+        labels,
+        datasets:[{
+          data,
+          backgroundColor:colors,
+          borderWidth:0
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        cutout:'72%',
+        plugins:{
+          legend:{
+            labels:{
+              color:'#d8dfeb',
+              padding:18
+            }
+          }
+        }
+      }
+    }
+  );
+}
+
+function renderInsights(){
+  const {assets, debts, netWorth} = calcSummary();
+  const cash = accounts.filter(a=>['cash','savings'].includes(a.type)).reduce((s,a)=>s+a.balance,0);
+  const retirement = accounts.filter(a=>a.type==='retirement').reduce((s,a)=>s+a.balance,0);
+  const crypto = accounts.filter(a=>a.type==='crypto').reduce((s,a)=>s+a.balance,0);
+
+  const insights = [];
+  const debtRatio = assets > 0 ? debts/assets : 0;
+  const cryptoPct = assets > 0 ? crypto/assets*100 : 0;
+
+  if(debts > 0 && debtRatio > 0.2){
+    insights.push({type:'danger', title:'High debt ratio', text:`Your debt is ${Math.round(debtRatio*100)}% of your assets. Focus on paying off high-interest accounts first.`});
+  } else if(debts > 0){
+    insights.push({type:'warning', title:'Pay down debt', text:`You have ${formatMoney(debts)} in debt. Extra payments each month can significantly reduce interest paid.`});
+  }
+
+  if(cryptoPct > 20){
+    insights.push({type:'warning', title:'Heavy crypto exposure', text:`Crypto makes up ${Math.round(cryptoPct)}% of your portfolio. Most advisors recommend keeping crypto under 5-10%.`});
+  }
+
+  if(cash < 1000){
+    insights.push({type:'danger', title:'Low cash reserve', text:`Your cash balance is ${formatMoney(cash)}. Aim to keep at least 1 month of expenses liquid.`});
+  }
+
+  if(retirement === 0){
+    insights.push({type:'warning', title:'Start retirement savings', text:`No retirement accounts yet. Even $50/month in a Roth IRA makes a big difference thanks to compound growth.`});
+  } else if(retirement < 5000){
+    insights.push({type:'warning', title:'Boost retirement', text:`Retirement balance: ${formatMoney(retirement)}. Try to get any employer 401k match — that's free money.`});
+  }
+
+  if(debts === 0 && netWorth > 0){
+    insights.push({type:'success', title:'Debt free!', text:`Great work — zero debt. Focus on growing investments and building a 6-month emergency fund.`});
+  }
+
+  if(netWorth > 0 && cryptoPct <= 10 && debtRatio < 0.1 && cash >= 3000){
+    insights.push({type:'success', title:'Well balanced', text:`Finances look healthy — low debt, reasonable crypto exposure, and solid cash reserves.`});
+  }
+
+  if(insights.length === 0){
+    insights.push({type:'success', title:'Good start', text:`Your accounts are set up. Keep balances updated regularly to get the most useful insights.`});
+  }
+
+  const container = document.getElementById('insightsContainer');
+  container.innerHTML = insights.slice(0,3).map(ins => `
+    <div class="insight-card ${ins.type}">
+      <span class="insight-badge">${ins.type==='success'?'✓ Good':ins.type==='warning'?'⚠ Watch':'! Action'}</span>
+      <div class="insight-title">${ins.title}</div>
+      <div class="insight-text">${ins.text}</div>
+    </div>
+  `).join('');
+}
+
+function renderBudget(){
+  const totalBudget = budgets.reduce((s,b)=>s+b.budget,0);
+  const totalSpent = budgets.reduce((s,b)=>s+b.spent,0);
+  const remaining = totalBudget - totalSpent;
+
+  document.getElementById('budgetTotal').textContent = formatMoney(totalBudget);
+  document.getElementById('spentTotal').textContent = formatMoney(totalSpent);
+  document.getElementById('remainingTotal').textContent = formatMoney(remaining);
+
+  const container = document.getElementById('budgetContainer');
+  container.innerHTML = '';
+
+  budgets.forEach(b => {
+    const pct = Math.min(100, Math.round(b.spent/b.budget*100));
+    const over = b.spent > b.budget;
+
+    const item = document.createElement('div');
+    item.className = 'budget-item';
+    item.innerHTML = `
+      <div class="budget-header">
+        <div class="budget-name">${b.name}</div>
+        <div class="budget-amounts ${over?'over':''}">${formatMoney(b.spent)} / ${formatMoney(b.budget)}</div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill ${over?'danger':pct>80?'warning':'success'}" style="width:${pct}%"></div>
+      </div>
+      <div class="budget-status" style="display:flex;justify-content:space-between">
+        <span>${over?'Over by '+formatMoney(b.spent-b.budget):formatMoney(b.budget-b.spent)+' remaining'} • ${pct}% used</span>
+        <div>
+          <button class="edit-btn" style="width:36px;height:36px" onclick="editBudget(${b.id})">
+            <i class="ti ti-edit"></i>
+          </button>
+          <button class="edit-btn" style="width:36px;height:36px" onclick="deleteBudget(${b.id})">
+            <i class="ti ti-trash"></i>
+          </button>
+        </div>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function renderGoals(){
+  const container = document.getElementById('goalsContainer');
+  container.innerHTML = '';
+
+  goals.forEach(g => {
+    const pct = Math.min(100, Math.round(g.current/g.target*100));
+    const remaining = g.target - g.current;
+
+    const months100 = remaining > 0 ? Math.ceil(remaining/100) : 0;
+    const months200 = remaining > 0 ? Math.ceil(remaining/200) : 0;
+
+    const card = document.createElement('div');
+    card.className = 'goal-card';
+    card.innerHTML = `
+      <div class="goal-header">
+        <div class="goal-icon" style="background:rgba(79,140,255,.15);color:#4f8cff">
+          <i class="ti ti-target"></i>
+        </div>
+        <div class="goal-info">
+          <div class="goal-name">${g.name}</div>
+          <div class="goal-target">Target: ${formatMoney(g.target)}</div>
+        </div>
+        <div>
+          <button class="edit-btn" onclick="editGoal(${g.id})">
+            <i class="ti ti-edit"></i>
+          </button>
+          <button class="edit-btn" onclick="deleteGoal(${g.id})">
+            <i class="ti ti-trash"></i>
+          </button>
+        </div>
+      </div>
+      <div class="goal-progress">
+        <div class="goal-amount">
+          <div class="goal-current">${formatMoney(g.current)}</div>
+          <div class="goal-pct">${pct}%</div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill success" style="width:${pct}%"></div>
+        </div>
+      </div>
+      ${remaining > 0 ? `
+        <div class="goal-projections">
+          <div class="projection">
+            <div class="projection-label">At $100/month</div>
+            <div class="projection-value">${months100} months</div>
+          </div>
+          <div class="projection">
+            <div class="projection-label">At $200/month</div>
+            <div class="projection-value">${months200} months</div>
+          </div>
+        </div>
+      ` : '<div style="color:var(--green);font-weight:700;text-align:center">🎉 Goal Reached!</div>'}
+    `;
+    container.appendChild(card);
+  });
+}
+
+function updateSims(){
+  const {netWorth} = calcSummary();
+  const debtTotal = Math.abs(accounts.filter(a=>a.balance<0).reduce((s,a)=>s+a.balance,0));
+  const cashTotal = accounts.filter(a=>['cash','savings'].includes(a.type)).reduce((s,a)=>s+a.balance,0);
+
+  const dp = parseInt(document.getElementById('slDebt').value);
+  document.getElementById('debtPct').textContent = dp+'%';
+  const paidOff = debtTotal*(dp/100);
+  document.getElementById('debtResult').innerHTML = `
+    <div class="result-row"><span class="result-label">Debt paid off</span><span class="result-value success">${formatMoney(paidOff)}</span></div>
+    <div class="result-row"><span class="result-label">New net worth</span><span class="result-value success">${formatMoney(netWorth+paidOff)}</span></div>
+    <div class="result-row"><span class="result-label">Change</span><span class="result-value success">+${formatMoney(paidOff)}</span></div>
+  `;
+
+  const inv = parseInt(document.getElementById('slInv').value);
+  const rate = parseInt(document.getElementById('slRate').value)/100;
+  const yrs = parseInt(document.getElementById('slYrs').value);
+  document.getElementById('invAmt').textContent = formatMoney(inv);
+  document.getElementById('invRate').textContent = rate*100+'%';
+  document.getElementById('invYrs').textContent = yrs;
+  const fv = inv*(Math.pow(1+rate/12,yrs*12)-1)/(rate/12);
+  const contrib = inv*yrs*12;
+  document.getElementById('invResult').innerHTML = `
+    <div class="result-row"><span class="result-label">Contributed</span><span class="result-value">${formatMoney(contrib)}</span></div>
+    <div class="result-row"><span class="result-label">Growth</span><span class="result-value success">+${formatMoney(fv-contrib)}</span></div>
+    <div class="result-row"><span class="result-label">Final value</span><span class="result-value success">${formatMoney(fv)}</span></div>
+  `;
+
+  const exp = parseInt(document.getElementById('slExp').value);
+  const mos = parseInt(document.getElementById('slMos').value);
+  document.getElementById('efExp').textContent = formatMoney(exp);
+  document.getElementById('efMos').textContent = mos;
+  const target = exp*mos;
+  const gap = cashTotal-target;
+  document.getElementById('efResult').innerHTML = `
+    <div class="result-row"><span class="result-label">Target</span><span class="result-value">${formatMoney(target)}</span></div>
+    <div class="result-row"><span class="result-label">Available cash</span><span class="result-value">${formatMoney(cashTotal)}</span></div>
+    <div class="result-row"><span class="result-label">${gap>=0?'Surplus':'Shortfall'}</span><span class="result-value ${gap>=0?'success':'danger'}">${gap>=0?'+':''}${formatMoney(gap)}</span></div>
+  `;
+
+  const age = parseInt(document.getElementById('slAge').value);
+  const rc = parseInt(document.getElementById('slRetC').value);
+  const rr = parseInt(document.getElementById('slRetR').value)/100;
+  document.getElementById('retAge').textContent = age;
+  document.getElementById('retContrib').textContent = formatMoney(rc);
+  document.getElementById('retRate').textContent = rr*100+'%';
+  const yrsToRet = Math.max(0,65-age);
+  const retBal = accounts.filter(a=>a.type==='retirement').reduce((s,a)=>s+a.balance,0);
+  const retFV = retBal*Math.pow(1+rr/12,yrsToRet*12) + rc*(Math.pow(1+rr/12,yrsToRet*12)-1)/(rr/12);
+  document.getElementById('retResult').innerHTML = `
+    <div class="result-row"><span class="result-label">Years to retire</span><span class="result-value">${yrsToRet}</span></div>
+    <div class="result-row"><span class="result-label">Current balance</span><span class="result-value">${formatMoney(retBal)}</span></div>
+    <div class="result-row"><span class="result-label">At age 65</span><span class="result-value success">${formatMoney(retFV)}</span></div>
+  `;
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+
+  if(tab==='overview'){ renderAccounts(); renderInsights(); }
+  if(tab==='accounts') renderAccounts();
+  if(tab==='budget') renderBudget();
+  if(tab==='goals') renderGoals();
+  if(tab==='whatif') updateSims();
+}
+
+function openAddModal(){
+  editAccId = null;
+  document.getElementById('accModalTitle').innerText = 'Add Account';
+  document.getElementById('nameInput').value = '';
+  document.getElementById('balanceInput').value = '';
+  document.getElementById('typeInput').value = 'cash';
+  document.getElementById('accModal').classList.add('open');
+}
+
+function editAccount(id){
+  const acc = accounts.find(a=>a.id===id);
+  editAccId = id;
+  document.getElementById('accModalTitle').innerText = 'Edit Account';
+  document.getElementById('nameInput').value = acc.name;
+  document.getElementById('balanceInput').value = acc.balance;
+  document.getElementById('typeInput').value = acc.type;
+  document.getElementById('accModal').classList.add('open');
+}
+
+function deleteAccount(id){
+  if(!confirm('Delete this account?')) return;
+  accounts = accounts.filter(a=>a.id!==id);
+  saveData();
+  renderAccounts();
+  renderInsights();
+}
+
+function closeAccModal(){
+  document.getElementById('accModal').classList.remove('open');
+}
+
+function saveAccount(){
+  const name = document.getElementById('nameInput').value.trim();
+  const type = document.getElementById('typeInput').value;
+  const balance = parseFloat(document.getElementById('balanceInput').value);
+
+  if(!name || isNaN(balance)){
+    return;
+  }
+
+  if(editAccId){
+    const acc = accounts.find(a=>a.id===editAccId);
+    acc.name = name;
+    acc.type = type;
+    acc.balance = balance;
+  } else {
+    accounts.push({
+      id:Date.now(),
+      name,
+      type,
+      balance
+    });
+  }
+
+  saveData();
+  renderAccounts();
+  renderInsights();
+  closeAccModal();
+}
+
+function openBudgetModal(){
+  editBudId = null;
+  document.getElementById('budModalTitle').innerText = 'Add Budget Category';
+  document.getElementById('budNameInput').value = '';
+  document.getElementById('budAmountInput').value = '';
+  document.getElementById('budSpentInput').value = '';
+  document.getElementById('budModal').classList.add('open');
+}
+
+function editBudget(id){
+  const bud = budgets.find(b=>b.id===id);
+  editBudId = id;
+  document.getElementById('budModalTitle').innerText = 'Edit Category';
+  document.getElementById('budNameInput').value = bud.name;
+  document.getElementById('budAmountInput').value = bud.budget;
+  document.getElementById('budSpentInput').value = bud.spent;
+  document.getElementById('budModal').classList.add('open');
+}
+
+function deleteBudget(id){
+  if(!confirm('Delete this budget category?')) return;
+  budgets = budgets.filter(b=>b.id!==id);
+  saveData();
+  renderBudget();
+}
+
+function closeBudModal(){
+  document.getElementById('budModal').classList.remove('open');
+}
+
+function saveBudget(){
+  const name = document.getElementById('budNameInput').value.trim();
+  const budget = parseFloat(document.getElementById('budAmountInput').value);
+  const spent = parseFloat(document.getElementById('budSpentInput').value) || 0;
+
+  if(!name || isNaN(budget)){
+    return;
+  }
+
+  if(editBudId){
+    const bud = budgets.find(b=>b.id===editBudId);
+    bud.name = name;
+    bud.budget = budget;
+    bud.spent = spent;
+  } else {
+    budgets.push({
+      id:Date.now(),
+      name,
+      budget,
+      spent
+    });
+  }
+
+  saveData();
+  renderBudget();
+  closeBudModal();
+}
+
+function openGoalModal(){
+  editGoalId = null;
+  document.getElementById('goalModalTitle').innerText = 'Add Goal';
+  document.getElementById('goalNameInput').value = '';
+  document.getElementById('goalTargetInput').value = '';
+  document.getElementById('goalCurrentInput').value = '';
+  document.getElementById('goalModal').classList.add('open');
+}
+
+function editGoal(id){
+  const goal = goals.find(g=>g.id===id);
+  editGoalId = id;
+  document.getElementById('goalModalTitle').innerText = 'Edit Goal';
+  document.getElementById('goalNameInput').value = goal.name;
+  document.getElementById('goalTargetInput').value = goal.target;
+  document.getElementById('goalCurrentInput').value = goal.current;
+  document.getElementById('goalModal').classList.add('open');
+}
+
+function deleteGoal(id){
+  if(!confirm('Delete this goal?')) return;
+  goals = goals.filter(g=>g.id!==id);
+  saveData();
+  renderGoals();
+}
+
+function closeGoalModal(){
+  document.getElementById('goalModal').classList.remove('open');
+}
+
+function saveGoal(){
+  const name = document.getElementById('goalNameInput').value.trim();
+  const target = parseFloat(document.getElementById('goalTargetInput').value);
+  const current = parseFloat(document.getElementById('goalCurrentInput').value) || 0;
+
+  if(!name || isNaN(target)){
+    return;
+  }
+
+  if(editGoalId){
+    const goal = goals.find(g=>g.id===editGoalId);
+    goal.name = name;
+    goal.target = target;
+    goal.current = current;
+  } else {
+    goals.push({
+      id:Date.now(),
+      name,
+      target,
+      current
+    });
+  }
+
+  saveData();
+  renderGoals();
+  closeGoalModal();
+}
+
+renderAccounts();
+renderInsights();
+
+</script>
+
+</body>
+</html>
